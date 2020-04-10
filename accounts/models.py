@@ -1,6 +1,8 @@
 import pytz
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
 from datetime import datetime
 from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField
@@ -111,3 +113,21 @@ class Customer(Actor):
         return ("%s %s" % (self.f_name, self.l_name)).upper()
 
     get_customer_name.short_description = 'Customers'
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(max_length=500, blank=True)
+    address = models.CharField(max_length=30, blank=True)
+    user_avatar = models.ImageField(default='default.jpg', upload_to='profile_avatar', blank=True, verbose_name='Profile Avatar')
+
+    def __str__(self):
+        return '%s  Profile' % self.user.get_full_name()
+
+    def save(self, **kwargs):
+        super().save()
+        img = Image.open(self.user_avatar.path)
+        if img.height > 500 or img.width > 500:
+            output_size = (500, 500)
+            img.thumbnail(output_size)
+            img.save(self.user_avatar.path)
