@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-
 from .models import User, Customer, UserProfile
+
 
 class MyUserAdmin(UserAdmin):
     list_display = ('upper_case_name', 'email', 'date_created', 'is_admin', 'is_staff', 'is_active')
@@ -36,7 +36,7 @@ class MyCustomerAdmin(admin.ModelAdmin):
     ordering = ('-date_created',)
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'address')
+    list_display = ('user', 'address', 'phone' )
     search_fields = ('address', 'phone')
 #    list_filter = ('address', 'date_created')
 #    date_hierarchy = 'date_created'

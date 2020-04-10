@@ -1,8 +1,7 @@
 import pytz
 from django.db import models
 from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from datetime import datetime
 from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField
@@ -119,6 +118,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(max_length=500, blank=True)
     address = models.CharField(max_length=30, blank=True)
+    phone = PhoneNumberField(region='NP')
     user_avatar = models.ImageField(default='default.jpg', upload_to='profile_avatar', blank=True, verbose_name='Profile Avatar')
 
     def __str__(self):
