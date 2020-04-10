@@ -1,7 +1,9 @@
+import pytz
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from datetime import datetime
-import pytz
+from PIL import Image
+from phonenumber_field.modelfields import PhoneNumberField
 
 ktm = pytz.timezone('Asia/Kathmandu')
 now = ktm.localize(datetime.now())
@@ -51,8 +53,8 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-    def upper_case_name(obj):
-        return ("%s %s" % (obj.f_name, obj.l_name)).upper()
+    def upper_case_name(self):
+        return ("%s %s" % (self.f_name, self.l_name)).upper()
 
     upper_case_name.short_description = 'Name'
 
@@ -69,3 +71,43 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
+
+class Actor(models.Model):
+    f_name = models.CharField(max_length=50, verbose_name='First Name')
+    l_name = models.CharField(max_length=50, verbose_name='Last Name')
+
+    address = models.CharField(max_length=50, null=True, blank=True)
+    phone = PhoneNumberField(region='NP')
+    email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address', blank=True, null=True)
+    date_created = models.DateTimeField(default=now, verbose_name='Date of Registration')
+
+    tot_due = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    tot_received = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+
+    class Meta:
+        abstract = True
+        ordering = ['f_name']
+
+    def __str__(self):
+        return "%s %s" % (self.f_name, self.l_name)
+
+
+class Customer(Actor):
+    image = models.ImageField(default='default.jpg', upload_to='customer', verbose_name='Image(Customer)')
+
+    class Meta:
+        verbose_name_plural = "Customers"
+
+    def save(self, **kwargs):
+        super().save()
+
+        img = Image.open(self.image.path)
+        if img.height > 500 or img.width > 500:
+            output_size = (500, 500)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
+
+    def get_customer_name(self):
+        return ("%s %s" % (self.f_name, self.l_name)).upper()
+
+    get_customer_name.short_description = 'Customers'
