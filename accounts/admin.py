@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from .models import User, Customer, UserProfile
+from .models import User, Customer, UserProfile, Vendor
 
 
 class MyUserAdmin(UserAdmin):
@@ -28,8 +28,16 @@ class MyUserAdmin(UserAdmin):
     filter_horizontal = ()
 
 
-class MyCustomerAdmin(admin.ModelAdmin):
+class CustomerAdmin(admin.ModelAdmin):
     list_display = ('get_customer_name', 'address', 'phone', 'email', 'tot_due', 'tot_received')
+    search_fields = ('f_name', 'l_name', 'email', 'address', 'phone', 'date_created')
+    list_filter = ('address', 'date_created')
+    date_hierarchy = 'date_created'
+    ordering = ('-date_created',)
+
+
+class VendorAdmin(admin.ModelAdmin):
+    list_display = ('get_vendor_name', 'address', 'phone', 'email', 'tot_due', 'tot_received')
     search_fields = ('f_name', 'l_name', 'email', 'address', 'phone', 'date_created')
     list_filter = ('address', 'date_created')
     date_hierarchy = 'date_created'
@@ -44,6 +52,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, MyUserAdmin)
-admin.site.register(Customer, MyCustomerAdmin)
+admin.site.register(Customer, CustomerAdmin)
+admin.site.register(Vendor, VendorAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.unregister(Group)

@@ -113,6 +113,25 @@ class Customer(Actor):
 
     get_customer_name.short_description = 'Customers'
 
+class Vendor(Actor):
+    image = models.ImageField(default='default.jpg', upload_to='vendor', verbose_name='Image(Vendor)')
+
+    class Meta:
+        verbose_name_plural = "Vendors"
+
+    def save(self, **kwargs):
+        super().save()
+
+        img = Image.open(self.image.path)
+        if img.height > 500 or img.width > 500:
+            output_size = (500, 500)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
+
+    def get_vendor_name(self):
+        return ("%s %s" % (self.f_name, self.l_name)).upper()
+
+    get_vendor_name.short_description = 'Vendors'
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
