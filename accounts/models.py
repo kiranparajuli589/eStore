@@ -1,8 +1,7 @@
 import pytz
-from django.db import models
-from django.db.models.signals import post_save
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from datetime import datetime
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -36,12 +35,24 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser):
-    email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address')
+class Actor(models.Model):
     f_name = models.CharField(max_length=50, verbose_name='First Name')
     l_name = models.CharField(max_length=50, verbose_name='Last Name')
-    date_created = models.DateTimeField(default=now, verbose_name='Registered Date')
 
+    address = models.CharField(max_length=50, null=True, blank=True)
+    phone = PhoneNumberField(region='NP')
+    email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address', blank=True, null=True)
+    date_created = models.DateTimeField(default=now, verbose_name='Date of Registration')
+
+    class Meta:
+        abstract = True
+        ordering = ['f_name']
+
+    def __str__(self):
+        return "{} {}".format(self.f_name, self.l_name)
+
+
+class User(AbstractBaseUser, Actor):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -54,13 +65,12 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-    def upper_case_name(self):
-        return ("%s %s" % (self.f_name, self.l_name)).upper()
-
-    upper_case_name.short_description = 'Name'
-
     def get_full_name(self):
-        return str(self.f_name + ' ' + self.l_name)
+        return '{} {}'.format(self.f_name, self.l_name)
+
+    def upper_case_name(self):
+        return self.get_full_name().upper()
+    upper_case_name.short_description = 'Name'
 
     def has_perm(self, perm, obj=None):
         """Does the user have a specific permission?"""
@@ -73,48 +83,41 @@ class User(AbstractBaseUser):
         return True
 
 
-class Actor(models.Model):
-    f_name = models.CharField(max_length=50, verbose_name='First Name')
-    l_name = models.CharField(max_length=50, verbose_name='Last Name')
-
-    address = models.CharField(max_length=50, null=True, blank=True)
-    phone = PhoneNumberField(region='NP')
-    email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address', blank=True, null=True)
-    date_created = models.DateTimeField(default=now, verbose_name='Date of Registration')
-
-    tot_due = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    tot_received = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(max_length=500, blank=True)
+    user_avatar = models.ImageField(default='default.png',
+                                    upload_to='profile_avatar',
+                                    blank=True,
+                                    verbose_name='Profile Avatar')
 
     class Meta:
-        abstract = True
-        ordering = ['f_name']
+        verbose_name_plural = "User Profiles"
 
     def __str__(self):
-        return "%s %s" % (self.f_name, self.l_name)
-
-
-class Customer(Actor):
-    image = models.ImageField(default='default.jpg', upload_to='customer', verbose_name='Image(Customer)')
-
-    class Meta:
-        verbose_name_plural = "Customers"
+        return '{} Profile'.format(self.user.get_full_name())
 
     def save(self, **kwargs):
         super().save()
-
-        img = Image.open(self.image.path)
+        img = Image.open(self.user_avatar.path)
         if img.height > 500 or img.width > 500:
             output_size = (500, 500)
             img.thumbnail(output_size)
-            img.save(self.image.path)
+            img.save(self.user_avatar.path)
 
-    def get_customer_name(self):
-        return ("%s %s" % (self.f_name, self.l_name)).upper()
+    def get_user_address(self):
+        return self.user.address
+    get_user_address.short_description = 'Address'
 
-    get_customer_name.short_description = 'Customers'
+    def get_user_phone(self):
+        return self.user.phone
+    get_user_phone.short_description = 'Phone Number'
+
 
 class Vendor(Actor):
-    image = models.ImageField(default='default.jpg', upload_to='vendor', verbose_name='Image(Vendor)')
+    tot_due = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    tot_received = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    image = models.ImageField(default='vendor-default.png', upload_to='vendor', verbose_name='Image(Vendor)')
 
     class Meta:
         verbose_name_plural = "Vendors"
@@ -129,24 +132,27 @@ class Vendor(Actor):
             img.save(self.image.path)
 
     def get_vendor_name(self):
-        return ("%s %s" % (self.f_name, self.l_name)).upper()
-
+        return "{} {}".format(self.f_name, self.l_name)
     get_vendor_name.short_description = 'Vendors'
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(max_length=500, blank=True)
-    address = models.CharField(max_length=30, blank=True)
-    phone = PhoneNumberField(region='NP')
-    user_avatar = models.ImageField(default='default.jpg', upload_to='profile_avatar', blank=True, verbose_name='Profile Avatar')
 
-    def __str__(self):
-        return '%s  Profile' % self.user.get_full_name()
+class Customer(Actor):
+    tot_due = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    tot_received = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    image = models.ImageField(default='customer-default.png', upload_to='customer', verbose_name='Image(Customer)')
+
+    class Meta:
+        verbose_name_plural = "Customers"
 
     def save(self, **kwargs):
         super().save()
-        img = Image.open(self.user_avatar.path)
+
+        img = Image.open(self.image.path)
         if img.height > 500 or img.width > 500:
             output_size = (500, 500)
             img.thumbnail(output_size)
-            img.save(self.user_avatar.path)
+            img.save(self.image.path)
+
+    def get_customer_name(self):
+        return "{} {}".format(self.f_name, self.l_name)
+    get_customer_name.short_description = 'Customers'
