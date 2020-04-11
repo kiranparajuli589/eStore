@@ -11,25 +11,35 @@ IMAGE_OUTPUT_SIZE = (500, 500)
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **kwargs):
         if not email:
             raise ValueError('User must have a unique email address!!!')
-
-        user = self.model(email=self.normalize_email(email=email))
+        if not password:
+            raise ValueError('Password must be provided!!!')
+        email = self.normalize_email(email)
+        is_staff = kwargs.pop('is_staff', False)
+        is_admin = kwargs.pop('is_admin', False)
+        user = self.model(
+            email=email,
+            is_active=True,
+            is_staff=is_staff,
+            is_admin=is_admin,
+            **kwargs
+        )
         user.set_password(password)
-        user.save()
+        user.save(using=self._db)
         return user
 
-    def create_staff_user(self, email, password=None):
-        user = self.create_user(email, password=None)
-        user.set_password(password)
-        user.is_staff = True
-        user.save()
-        return user
+    def create_user(self, email, password=None, **extra_fields):
+        return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email, password=None):
-        user = self.create_user(email, password=None)
-        user.set_password(password)
+    def create_staff_user(self, email, password=None, **extra_fields):
+        return self._create_user(email, password, is_staff=True, **extra_fields)
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        user = self.create_user(email, password, is_staff=True, is_admin=True, **extra_fields)
         user.is_staff = True
         user.is_admin = True
         user.save()
@@ -41,8 +51,8 @@ class Actor(models.Model):
     l_name = models.CharField(max_length=50, verbose_name='Last Name')
 
     address = models.CharField(max_length=50, null=True, blank=True)
-    phone = PhoneNumberField(region='NP')
-    email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address', blank=True, null=True)
+    phone = PhoneNumberField(region='NP', blank=True, null=True, unique=True)
+    email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address')
     date_created = models.DateTimeField(default=NOW, verbose_name='Date of Registration')
 
     class Meta:
@@ -61,16 +71,28 @@ class User(AbstractBaseUser, Actor):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = [
+        'f_name',
+        'l_name',
+    ]
+
+    class Meta:
+        verbose_name_plural = "Users"
 
     def __str__(self):
         return self.email
 
     def get_full_name(self):
-        return '{} {}'.format(self.f_name, self.l_name)
+        if self.f_name and self.l_name:
+            return '{} {}'.format(self.f_name, self.l_name)
+        else:
+            return None
 
     def upper_case_name(self):
-        return self.get_full_name().upper()
+        if self.f_name and self.l_name:
+            return self.get_full_name().upper()
+        else:
+            return None
     upper_case_name.short_description = 'Name'
 
     def has_perm(self, perm, obj=None):
