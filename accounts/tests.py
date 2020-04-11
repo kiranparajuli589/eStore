@@ -15,6 +15,8 @@ class UserTestCase(TestCase):
         self.assertEqual(user.is_active, True)
         self.assertEqual(user.phone, None)
         self.assertEqual(user.address, None)
+        self.assertEqual(user.get_full_name(), None)
+        self.assertEqual(user.upper_case_name(), None)
 
     def test_create_staff_user(self):
         user = User.objects.get(email='test@staff.co')
@@ -23,6 +25,8 @@ class UserTestCase(TestCase):
         self.assertEqual(user.is_active, True)
         self.assertEqual(user.phone, None)
         self.assertEqual(user.address, None)
+        self.assertEqual(user.get_full_name(), None)
+        self.assertEqual(user.upper_case_name(), None)
 
     def test_create_user(self):
         user = User.objects.get(email='test@user.co')
@@ -31,3 +35,6 @@ class UserTestCase(TestCase):
         self.assertEqual(user.is_active, True)
         self.assertEqual(user.phone, None)
         self.assertEqual(user.address, None)
+        self.assertEqual(user.get_full_name(), None)
+        self.assertEqual(user.upper_case_name(), None)
+

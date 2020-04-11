@@ -76,14 +76,23 @@ class User(AbstractBaseUser, Actor):
         'l_name',
     ]
 
+    class Meta:
+        verbose_name_plural = "Users"
+
     def __str__(self):
         return self.email
 
     def get_full_name(self):
-        return '{} {}'.format(self.f_name, self.l_name)
+        if self.f_name and self.l_name:
+            return '{} {}'.format(self.f_name, self.l_name)
+        else:
+            return None
 
     def upper_case_name(self):
-        return self.get_full_name().upper()
+        if self.f_name and self.l_name:
+            return self.get_full_name().upper()
+        else:
+            return None
     upper_case_name.short_description = 'Name'
 
     def has_perm(self, perm, obj=None):
