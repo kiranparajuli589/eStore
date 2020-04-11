@@ -1,12 +1,12 @@
-import pytz
 from datetime import datetime
+import pytz
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField
 
-ktm = pytz.timezone('Asia/Kathmandu')
-now = ktm.localize(datetime.now())
+KTM = pytz.timezone('Asia/Kathmandu')
+NOW = KTM.localize(datetime.NOW())
 
 
 class UserManager(BaseUserManager):
@@ -42,7 +42,7 @@ class Actor(models.Model):
     address = models.CharField(max_length=50, null=True, blank=True)
     phone = PhoneNumberField(region='NP')
     email = models.EmailField(unique=True, max_length=50, verbose_name='Email Address', blank=True, null=True)
-    date_created = models.DateTimeField(default=now, verbose_name='Date of Registration')
+    date_created = models.DateTimeField(default=NOW, verbose_name='Date of Registration')
 
     class Meta:
         abstract = True
