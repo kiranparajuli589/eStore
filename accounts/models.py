@@ -6,7 +6,7 @@ from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField
 
 KTM = pytz.timezone('Asia/Kathmandu')
-NOW = KTM.localize(datetime.NOW())
+NOW = KTM.localize(datetime.now())
 
 
 class UserManager(BaseUserManager):
