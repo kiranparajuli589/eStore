@@ -7,6 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 KTM = pytz.timezone('Asia/Kathmandu')
 NOW = KTM.localize(datetime.now())
+IMAGE_OUTPUT_SIZE = (500, 500)
 
 
 class UserManager(BaseUserManager):
@@ -101,8 +102,7 @@ class UserProfile(models.Model):
         super().save()
         img = Image.open(self.user_avatar.path)
         if img.height > 500 or img.width > 500:
-            output_size = (500, 500)
-            img.thumbnail(output_size)
+            img.resize(IMAGE_OUTPUT_SIZE, Image.BILINEAR)
             img.save(self.user_avatar.path)
 
     def get_user_address(self):
@@ -117,7 +117,7 @@ class UserProfile(models.Model):
 class Vendor(Actor):
     tot_due = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     tot_received = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    image = models.ImageField(default='vendor-default.png', upload_to='vendor', verbose_name='Image(Vendor)')
+    image = models.ImageField(default='vendor-default.png', upload_to='vendors', verbose_name='Image(Vendor)')
 
     class Meta:
         verbose_name_plural = "Vendors"
@@ -127,8 +127,7 @@ class Vendor(Actor):
 
         img = Image.open(self.image.path)
         if img.height > 500 or img.width > 500:
-            output_size = (500, 500)
-            img.thumbnail(output_size)
+            img.resize(IMAGE_OUTPUT_SIZE, Image.BILINEAR)
             img.save(self.image.path)
 
     def get_vendor_name(self):
@@ -139,7 +138,7 @@ class Vendor(Actor):
 class Customer(Actor):
     tot_due = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     tot_received = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    image = models.ImageField(default='customer-default.png', upload_to='customer', verbose_name='Image(Customer)')
+    image = models.ImageField(default='customer-default.png', upload_to='customers', verbose_name='Image(Customer)')
 
     class Meta:
         verbose_name_plural = "Customers"
@@ -149,8 +148,7 @@ class Customer(Actor):
 
         img = Image.open(self.image.path)
         if img.height > 500 or img.width > 500:
-            output_size = (500, 500)
-            img.thumbnail(output_size)
+            img.resize(IMAGE_OUTPUT_SIZE, Image.BILINEAR)
             img.save(self.image.path)
 
     def get_customer_name(self):
