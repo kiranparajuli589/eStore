@@ -15,9 +15,14 @@ class UserManager(BaseUserManager):
 
     def _create_user(self, email, password, **kwargs):
         if not email:
-            raise ValueError('User must have a unique email address!!!')
+            raise ValueError('email address field is required!')
         if not password:
-            raise ValueError('Password must be provided!!!')
+            raise ValueError('password field is required!')
+        if 'f_name' not in kwargs.keys():
+            raise ValueError('first name field is required!')
+        if 'l_name' not in kwargs.keys():
+            raise ValueError('last name field is required!')
+
         email = self.normalize_email(email)
         is_staff = kwargs.pop('is_staff', False)
         is_admin = kwargs.pop('is_admin', False)
