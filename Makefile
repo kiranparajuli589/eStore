@@ -10,11 +10,11 @@ APP := accounts
 SHELL := /bin/bash
 
 # Add migration folder here after adding new app
-make_migration_deps = accounts/models.py
-migration_deps = accounts/migrations
-virtual_env_src = venv
-requirements = requirements.txt
-db = db.sqlite3
+make_migration_deps := accounts/models.py
+migration_deps := accounts/migrations
+virtual_env_src := venv
+requirements := requirements.txt
+db := db.sqlite3
 
 PYTHON := python3.8
 PIP := pip3
