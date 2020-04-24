@@ -1,14 +1,14 @@
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 from accounts.models import User, UserProfile
 from accounts.permissions import IsAdminPermission
 from accounts.serializers import UserSerializer, UserCreateSerializer
 
 
 class UserView(APIView):
-    permission_classes = (IsAdminPermission, IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, TokenHasReadWriteScope, IsAdminPermission)
 
     @staticmethod
     def get(request):
