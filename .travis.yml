@@ -6,23 +6,19 @@ python:
 
 env:
   - ESALE_SERVER_BACKEND: 172.17.0.1:8000
-    DJANGO_SUPERUSER_EMAIL: admin@test.com
-    DJANGO_SUPERUSER_PASSWORD: admin
-    DJANGO_SUPERUSER_F_NAME: Admin
-    DJANGO_SUPERUSER_L_NAME: User
 
 install:
-  - pip install -r requirements.txt
-  - python manage.py makemigrations accounts
-  - python manage.py migrate
-  - python manage.py makemigrations
-  - python manage.py migrate
-  - python manage.py createsuperuser --no-input
-  - python manage.py runserver $ESALE_SERVER_BACKEND &
+  - make install
+  - make mk-migrations APP=accounts
+  - make migrate
+  - make mk-migrations
+  - make migrate
+  - make create-superuser
+  - make serve &
   - until curl -s $ESALE_SERVER_BACKEND; do sleep 5; done
 
 script:
-  - python manage.py test
+  - make test
 
 cache:
   - pip
