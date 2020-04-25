@@ -21,3 +21,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def validate_password(password):
         validate_password(password)
         return password
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=64)
