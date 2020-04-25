@@ -59,7 +59,7 @@ mk-migrations: $(make_migration_deps)
 .PHONY: migrate
 migrate: $(migration_deps)
 	@echo "Running account app migration first"
-	$(PYTHON) manage.py migrate
+	$(PYTHON) manage.py migrate $(APP)
 	# Add migration when new apps added
 
 .PHONY: serve
@@ -92,3 +92,7 @@ clean-db:
 	@echo "Removing extra redundant files"
 	rm -rf $(db)
 	@echo "Success"
+
+.PHONY: test
+test:
+	$(PYTHON) manage.py test
