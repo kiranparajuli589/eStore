@@ -3,12 +3,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 from accounts.models import User, UserProfile
-from accounts.permissions import IsAdminPermission
+from accounts.permissions import IsAdminUser
 from accounts.serializers import UserSerializer, UserCreateSerializer
 
 
 class UserView(APIView):
-    permission_classes = (permissions.IsAuthenticated, TokenHasReadWriteScope, IsAdminPermission)
+    permission_classes = (permissions.IsAuthenticated, TokenHasReadWriteScope, IsAdminUser)
 
     @staticmethod
     def get(request):
