@@ -21,11 +21,12 @@ class LoginView(APIView):
         """
         serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            user = get_object_or_404(User, email=request.data.get('email'))
-            user = authenticate(username=user.email, password=request.data.get('password'))
+            email = serializer.data['email']
+            password = serializer.data['password']
+            get_object_or_404(User, email=email)
+            user = authenticate(username=email, password=password)
             if user:
                 serializer = UserSerializer(user)
-                print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "Wrong credentials provided!"})
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Password doesn't match!"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
