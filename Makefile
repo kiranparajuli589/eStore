@@ -6,7 +6,6 @@ ADMIN_EMAIL := admin@test.com
 ADMIN_F_NAME := Admin
 ADMIN_L_NAME := USER
 ADMIN_PASSWORD := admin
-APP := accounts
 SHELL := /bin/bash
 
 # Add migration folder here after adding new app
@@ -54,13 +53,10 @@ perform-migration: mk-migrations migrate
 .PHONY: mk-migrations
 mk-migrations: $(make_migration_deps)
 	$(PYTHON) manage.py makemigrations $(APP)
-	# Add migration when new apps added
 
 .PHONY: migrate
 migrate: $(migration_deps)
-	@echo "Running account app migration first"
 	$(PYTHON) manage.py migrate $(APP)
-	# Add migration when new apps added
 
 .PHONY: serve
 serve:
