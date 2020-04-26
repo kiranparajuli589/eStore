@@ -13,10 +13,10 @@ AccessToken = get_access_token_model()
 class OauthHelper:
     def __init__(self):
         oauth2_settings._SCOPES = ["read", "write", "test"]
-        self._admin_user_email = 'test@admin.co'
-        self._password = 'test'
-        self._admin_f_name = 'Test'
-        self._admin_l_name = 'Admin'
+        self._admin_user_email = "test@admin.co"
+        self._password = "test"
+        self._admin_f_name = "Test"
+        self._admin_l_name = "Admin"
         self._test_admin_user = User.objects.create_superuser(
             email=self._admin_user_email,
             password=self._password,
@@ -46,8 +46,8 @@ class OauthHelper:
 
     def get_admin_credentials(self):
         return dict({
-            'email': self._admin_user_email,
-            'password': self._password,
-            'f_name': self._admin_f_name,
-            'l_name': self._admin_l_name
+            "email": self._admin_user_email,
+            "password": self._password,
+            "f_name": self._admin_f_name,
+            "l_name": self._admin_l_name
         })

@@ -42,8 +42,8 @@ class ScopedView(OAuth2View):
 
 urlpatterns = [
     url(r"^oauth2/", include("oauth2_provider.urls")),
-    url(r"^oauth2-test/$", OAuth2View.as_view(), name='oauth'),
-    url(r"^oauth2-scoped-test/$", ScopedView.as_view(), name='scoped-oauth'),
+    url(r"^oauth2-test/$", OAuth2View.as_view(), name="oauth"),
+    url(r"^oauth2-scoped-test/$", ScopedView.as_view(), name="scoped-oauth"),
 
 ]
 
@@ -51,11 +51,11 @@ urlpatterns = [
 @override_settings(ROOT_URLCONF=__name__)
 class TestOAuth2Authentication(TestCase):
     def setUp(self):
-        self._regular_user_email = 'test@regular.co'
-        self._password = 'test'
+        self.__regular_user_email = "test@regular.co"
+        self.__password = "test"
 
-        self._test_regular_user = User.objects.create_user(
-            email=self._regular_user_email, password=self._password,
+        self.__test_regular_user = User.objects.create_user(
+            email=self.__regular_user_email, password=self.__password,
             f_name="Test", l_name="Regular")
         self.oauth = OauthHelper()
         self.application = OauthHelper.get_application(self.oauth)
