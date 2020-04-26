@@ -28,5 +28,8 @@ class LoginView(APIView):
             if user:
                 serializer = UserSerializer(user)
                 return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Password doesn't match!"})
+            return Response(
+                {"detail": "Password doesn't match!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
