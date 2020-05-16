@@ -151,6 +151,9 @@ class UserTests(APITestCase):
     def test_update_user(self):
         """
         Ensure we can update user password
+        NOTE: Also, the API requests for updating password of requesting user
+        So, password of superuser is used instead of test user. Its because, oauth token if
+        made using admin user credentials.
         """
         data = {
             "password": "VeryComplex#$123",

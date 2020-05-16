@@ -12,7 +12,7 @@ class OauthHelper:
     def __init__(self, user, scope):
         """
         Sets up oauthClient for provided user
-        :param user: User
+        :param user:User
         :param scope:array Array of scopes
         """
         oauth2_settings._SCOPES = scope
