@@ -1,17 +1,15 @@
-import random
-
 from django.contrib.auth import update_session_auth_hash, authenticate
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage, send_mail
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from oauth2_provider.models import get_application_model, get_access_token_model
 
 from accounts.models import User, ResetPasswordCode
-from accounts.serializers import UpdatePasswordSerializer, ResetPasswordEmailSerializer, ResetPasswordForm
+from accounts.serializers import UpdatePasswordSerializer, ResetPasswordEmailSerializer, ResetNewPasswordSerializer
 from backend import settings
 
 Application = get_application_model()
@@ -29,7 +27,6 @@ class UpdatePassword(APIView):
             password = serializer.validated_data["password"]
             new_password = serializer.validated_data["new_password"]
             user = authenticate(email=request.user.email, password=password)
-            print(user)
             if user:
                 user.set_password(new_password)
                 user.save()
@@ -110,14 +107,12 @@ class ResetPasswordConfirm(APIView):
 
     @staticmethod
     def post(request, code):
-        serializer = ResetPasswordForm(data=request.data)
+        serializer = ResetNewPasswordSerializer(data=request.data)
         if serializer.is_valid():
             password = serializer.validated_data["new_password"]
             try:
                 reset_password_code = get_object_or_404(ResetPasswordCode, code=code)
-                print(reset_password_code)
                 user = reset_password_code.user
-                print(user)
                 user.set_password(password)
                 user.save()
                 reset_password_code.delete()

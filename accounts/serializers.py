@@ -36,9 +36,9 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UpdatePasswordSerializer(serializers.Serializer):
-    password = serializers.CharField(write_only=True, required=True,)
-    new_password = serializers.CharField(write_only=True, required=True)
-    confirm_password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
 
     @staticmethod
     def validate_new_password(password):
@@ -57,7 +57,7 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
-class ResetPasswordForm(serializers.Serializer):
+class ResetNewPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
