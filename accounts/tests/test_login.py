@@ -17,7 +17,7 @@ class LoginTest(APITestCase):
             l_name=self.__user_l_name,
             password=self.__user_password
         )
-        self.__url = reverse("login")
+        self.__url = reverse("user-accounts:login")
 
     def test_login_success_with_valid_user_credentials(self):
         """

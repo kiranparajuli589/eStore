@@ -36,9 +36,9 @@ class UserTests(APITestCase):
                 "f_name": self.__test_super_user.f_name,
                 "l_name": self.__test_super_user.l_name
             })
-        self.__users_list_url = reverse("users-list")
-        self.__user_detail_url = reverse("user-detail", kwargs={'pk': self.__test_user.pk})
-        self.__user_update_pw_url = reverse("update-pw")
+        self.__users_list_url = reverse("user-accounts:users-list")
+        self.__user_detail_url = reverse("user-accounts:user-detail", kwargs={'pk': self.__test_user.pk})
+        self.__user_update_pw_url = reverse("user-accounts:update-pw")
 
     def test_list_users(self):
         """
@@ -109,7 +109,7 @@ class UserTests(APITestCase):
         """
         Ensure we cannot get any user with an in-valid pk
         """
-        url = reverse("user-detail", kwargs={"pk": 55})
+        url = reverse("user-accounts:user-detail", kwargs={"pk": 55})
         response = self.client.get(url, HTTP_AUTHORIZATION=self.__auth)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -148,7 +148,7 @@ class UserTests(APITestCase):
         self.assertEqual(response.data["detail"], "Delete success!")
         self.assertEqual(User.objects.all().count(), 1)
 
-    def test_update_user(self):
+    def test_update_user_password(self):
         """
         Ensure we can update user password
         NOTE: Also, the API requests for updating password of requesting user
@@ -158,11 +158,11 @@ class UserTests(APITestCase):
         data = {
             "password": "VeryComplex#$123",
             "new_password": "VerySimple#$321",
-            "confirm": "VerySimple#$321"
+            "confirm_password": "VerySimple#$321"
         }
         response = self.client.post(self.__user_update_pw_url, data=data, HTTP_AUTHORIZATION=self.__auth)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(response.data["detail"], "Update password success.")
-        user = authenticate(email=self.__test_super_user, password=data["confirm"])
+        user = authenticate(email=self.__test_super_user, password=data["confirm_password"])
         self.assertIsNotNone(user)
         self.assertEqual(user.email, self.__admin_credentials["email"])
