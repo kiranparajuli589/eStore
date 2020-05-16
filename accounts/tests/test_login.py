@@ -41,7 +41,7 @@ class LoginTest(APITestCase):
         }
         response = self.client.post(self.__url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data['detail'], "Not found.")
+        self.assertEqual(response.data['detail'], "User not found!")
 
     def test_login_failure_with_valid_email_but_invalid_password(self):
         """
