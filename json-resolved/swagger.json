@@ -1,553 +1,239 @@
 {
   "openapi" : "3.0.0",
   "info" : {
-    "title" : "home-iot-api",
-    "description" : "The API for the EatBacon IOT project",
+    "title" : "iStore",
+    "description" : "The API for the iStore project",
+    "contact" : {
+      "name" : "Kiran Parajuli",
+      "url" : "https://github.com/kiranparajuli589",
+      "email" : "kiranparajuli589@gmail.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
     "version" : "1.0.0"
   },
   "servers" : [ {
-    "url" : "https://virtserver.swaggerhub.com/Mas38/iStore/1.0.0",
+    "url" : "http://localhost:8000",
     "description" : "iStore Documentation"
   } ],
   "paths" : {
-    "/devices" : {
+    "/api/v1/accounts/users/" : {
       "get" : {
-        "tags" : [ "Device" ],
-        "description" : "returns all registered devices",
-        "operationId" : "getDevices",
-        "parameters" : [ {
-          "name" : "skip",
-          "in" : "query",
-          "description" : "number of records to skip",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }, {
-          "name" : "limit",
-          "in" : "query",
-          "description" : "max number of records to return",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        } ],
+        "summary" : "Returns a list of users",
+        "description" : "Optional extended description in CommonMark or HTML",
         "responses" : {
           "200" : {
-            "description" : "All the devices",
+            "description" : "A JSON array of user names",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "string",
-                    "format" : "uri",
-                    "example" : "http://10.0.0.225:8080"
-                  }
+                  "$ref" : "#/components/schemas/UserResponse"
                 }
               }
             }
           }
-        }
+        },
+        "security" : [ {
+          "BasicAuth" : [ ]
+        } ]
       },
       "post" : {
-        "tags" : [ "Device" ],
-        "operationId" : "register",
+        "summary" : "Creates a user",
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/DeviceRegistrationInfo"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "successfully registered device"
-          }
-        }
-      }
-    },
-    "/lighting/dimmers/{deviceId}/{value}" : {
-      "post" : {
-        "tags" : [ "Z-Wave" ],
-        "operationId" : "setDimmer",
-        "parameters" : [ {
-          "name" : "deviceId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "value",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "maximum" : 100,
-            "minimum" : 0,
-            "type" : "integer",
-            "format" : "int32"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponse"
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/UserRequest"
                 }
               }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "ZWave"
-      }
-    },
-    "/lighting/dimmers/{deviceId}/{value}/timer/{timeunit}" : {
-      "post" : {
-        "tags" : [ "Z-Wave" ],
-        "description" : "sets a dimmer to a specific value on a timer",
-        "operationId" : "setDimmerTimer",
-        "parameters" : [ {
-          "name" : "deviceId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "value",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }, {
-          "name" : "timeunit",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }, {
-          "name" : "units",
-          "in" : "query",
-          "required" : false,
-          "style" : "form",
-          "explode" : true,
-          "schema" : {
-            "type" : "string",
-            "default" : "milliseconds",
-            "enum" : [ "seconds", "minutes", "milliseconds" ]
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponse"
-                }
+            },
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserRequest"
               }
             }
-          }
+          },
+          "required" : true
         },
-        "x-swagger-router-controller" : "ZWave"
-      }
-    },
-    "/lighting/switches/{deviceId}" : {
-      "get" : {
-        "tags" : [ "Z-Wave" ],
-        "operationId" : "getSwitchState",
-        "parameters" : [ {
-          "name" : "deviceId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
         "responses" : {
-          "200" : {
-            "description" : "response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/DeviceState"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "ZWave"
-      }
-    },
-    "/lighting/switches/{deviceId}/{value}" : {
-      "post" : {
-        "tags" : [ "Z-Wave" ],
-        "operationId" : "setSwitch",
-        "parameters" : [ {
-          "name" : "deviceId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "value",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string",
-            "enum" : [ "true", "false" ]
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "ZWave"
-      }
-    },
-    "/lighting/switches/{deviceId}/{value}/timer/{minutes}" : {
-      "post" : {
-        "tags" : [ "Z-Wave" ],
-        "description" : "sets a switch to a specific value on a timer",
-        "operationId" : "setSwitchTimer",
-        "parameters" : [ {
-          "name" : "deviceId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "value",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "minutes",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "ZWave"
-      }
-    },
-    "/lightingSummary" : {
-      "get" : {
-        "tags" : [ "Z-Wave" ],
-        "operationId" : "getLightingSummary",
-        "responses" : {
-          "200" : {
-            "description" : "ok",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/LightingSummary"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "ZWave"
-      }
-    },
-    "/temperature" : {
-      "get" : {
-        "tags" : [ "Environment" ],
-        "operationId" : "temperatureSummary",
-        "responses" : {
-          "200" : {
-            "description" : "ok",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TemperatureSummary"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "Environment"
-      }
-    },
-    "/temperature/forecast/{days}" : {
-      "get" : {
-        "tags" : [ "Environment" ],
-        "operationId" : "getForecast",
-        "parameters" : [ {
-          "name" : "days",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "the forecast",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ForecastResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "Environment"
-      }
-    },
-    "/temperature/{zoneId}" : {
-      "get" : {
-        "tags" : [ "Environment" ],
-        "operationId" : "getZoneTemperature",
-        "parameters" : [ {
-          "name" : "zoneId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Zone temperature",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TemperatueZoneStatus"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "Environment"
-      }
-    },
-    "/temperature/{zoneId}/heater" : {
-      "get" : {
-        "tags" : [ "Environment" ],
-        "description" : "gets the state of the heater",
-        "operationId" : "getHeaterState",
-        "parameters" : [ {
-          "name" : "zoneId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "heater state",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/HeaterState"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "Environment"
-      }
-    },
-    "/temperature/{zoneId}/heater/{state}" : {
-      "post" : {
-        "tags" : [ "Environment" ],
-        "description" : "turns the heater on or off",
-        "operationId" : "setHeaterState",
-        "parameters" : [ {
-          "name" : "zoneId",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "state",
-          "in" : "path",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string",
-            "enum" : [ "false", "true" ]
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Status of the operation",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-swagger-router-controller" : "Environment"
-      }
-    },
-    "/zones" : {
-      "get" : {
-        "tags" : [ "Zones" ],
-        "operationId" : "getZones",
-        "responses" : {
-          "200" : {
-            "description" : "ok",
+          "201" : {
+            "description" : "Created",
             "content" : {
               "application/json" : {
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "type" : "string"
+                    "$ref" : "#/components/schemas/UserResponse"
                   }
                 }
               }
             }
           }
         },
-        "x-swagger-router-controller" : "Zones"
+        "security" : [ {
+          "BasicAuth" : [ ]
+        } ]
       }
     },
-    "/zones/{zoneId}/quiet" : {
+    "/api/v1/accounts/user/{userId}" : {
       "get" : {
-        "tags" : [ "Zones" ],
-        "operationId" : "quietZone",
+        "summary" : "Returns a user by ID.",
         "parameters" : [ {
-          "name" : "zoneId",
+          "name" : "userId",
           "in" : "path",
+          "description" : "The ID of the user to return.",
           "required" : true,
           "style" : "simple",
           "explode" : false,
           "schema" : {
-            "type" : "string",
-            "enum" : [ "basement", "first-floor", "second-floor" ]
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
           "200" : {
-            "description" : "ok"
+            "description" : "A user object.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Access token is missing or invalid"
+          },
+          "404" : {
+            "description" : "A user with the specified ID was not found."
           }
         },
-        "x-swagger-router-controller" : "Zones"
+        "security" : [ {
+          "oAuthSample" : [ "write_pets", "read_pets" ]
+        } ]
       }
     }
   },
   "components" : {
     "schemas" : {
-      "LightingSummary" : {
-        "type" : "object",
-        "properties" : {
-          "zones" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/LightingZone"
-            }
-          },
-          "zoneStatus" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/LightingZoneStatus"
-            }
-          }
-        },
-        "description" : "ok"
-      },
-      "LightingZone" : {
-        "type" : "object",
+      "UserResponse" : {
         "properties" : {
           "id" : {
-            "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "deviceId" : {
             "type" : "integer",
-            "format" : "int32"
+            "format" : "int32",
+            "example" : 1
           },
-          "deviceType" : {
+          "f_name" : {
             "type" : "string",
-            "enum" : [ "dimmer", "switch" ]
+            "example" : "Kiran"
           },
-          "zone" : {
-            "type" : "string"
+          "l_name" : {
+            "type" : "string",
+            "example" : "Parajuli"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "password" : {
+            "type" : "string",
+            "format" : "password"
+          },
+          "last_login" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "address" : {
+            "type" : "string",
+            "example" : "Pokhara"
+          },
+          "phone" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 9875632145
+          },
+          "date_created" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "is_admin" : {
+            "type" : "boolean"
+          },
+          "is_staff" : {
+            "type" : "boolean"
+          },
+          "is_active" : {
+            "type" : "boolean"
           }
         }
+      },
+      "UserRequest" : {
+        "required" : [ "email", "f_name", "l_name", "password" ],
+        "properties" : {
+          "f_name" : {
+            "type" : "string",
+            "example" : "Kiran"
+          },
+          "l_name" : {
+            "type" : "string",
+            "example" : "Parajuli"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "password" : {
+            "type" : "string",
+            "format" : "password"
+          },
+          "address" : {
+            "type" : "string",
+            "example" : "Pokhara"
+          },
+          "phone" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 9875632145
+          },
+          "is_admin" : {
+            "type" : "boolean"
+          },
+          "is_staff" : {
+            "type" : "boolean"
+          },
+          "is_active" : {
+            "type" : "boolean"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "UnauthorizedError" : {
+        "description" : "Access token is missing or invalid"
+      }
+    },
+    "securitySchemes" : {
+      "oAuthSample" : {
+        "type" : "oauth2",
+        "description" : "This API uses OAuth 2 with the implicit grant flow. [More info](https://api.example.com/docs/auth)",
+        "flows" : {
+          "password" : {
+            "tokenUrl" : "/o/token",
+            "scopes" : {
+              "read" : "Grant read-only access to all your data",
+              "write" : "Grant write-only access to all your data"
+            }
+          }
+        }
+      },
+      "basicAuth" : {
+        "type" : "http",
+        "scheme" : "basic"
       }
     }
   }
