@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from oauth2_provider.models import get_application_model
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,6 +8,7 @@ from accounts.models import User, UserProfile
 from accounts.permissions import IsAdminUser
 from accounts.serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer
 
+Application = get_application_model()
 
 class UserList(APIView):
     permission_classes = [TokenHasReadWriteScope, permissions.IsAuthenticated, IsAdminUser]
@@ -31,6 +33,13 @@ class UserList(APIView):
             user.is_active = True
             user.save()
             UserProfile(user=user).save()
+            Application.objects.create(
+                name="{} Application".format(user.f_name),
+                redirect_uris="http://localhost",
+                user=user,
+                client_type=Application.CLIENT_CONFIDENTIAL,
+                authorization_grant_type=Application.GRANT_PASSWORD,
+            )
             return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

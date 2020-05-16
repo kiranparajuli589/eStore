@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 import pytz
 from django.db import models
@@ -109,6 +110,17 @@ class User(AbstractBaseUser, Actor):
         """Does the user have permissions to view the app `app_label`?"""
         # Simplest possible answer: Yes, always
         return True
+
+
+class ResetPasswordCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+
+    class Meta:
+        verbose_name_plural = "Reset Password Codes"
+
+    def __str__(self):
+        return "{} - {}".format(self.user.email, self.code)
 
 
 class UserProfile(models.Model):

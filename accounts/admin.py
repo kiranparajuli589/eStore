@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from .models import User, Customer, UserProfile, Vendor
+from .models import User, Customer, UserProfile, Vendor, ResetPasswordCode
 
 
 class MyUserAdmin(UserAdmin):
@@ -55,4 +55,5 @@ admin.site.register(User, MyUserAdmin)
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Vendor, VendorAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(ResetPasswordCode)
 admin.site.unregister(Group)

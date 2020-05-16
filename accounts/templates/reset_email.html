@@ -1,0 +1,15 @@
+{% autoescape off %}
+<h3>Hi User {{ user }}!</h3>
+<p>Did you request for a password reset?</p>
+<p>If so, Please send POST request to provided url with new password data field</p>
+
+<p>This is a sample request using curl:</p>
+<span>
+curl -X POST {% if request.is_secure %}https{% else %}http{% endif %}://localhost:8000{% url 'user-accounts:reset-pw-confirm' code=code %} -d new_password=123456 -d confirm_password=123456
+</span>
+
+<p>This is the endpoint:</p>
+<span>{% if request.is_secure %}https{% else %}http{% endif %}://localhost:8000{% url 'user-accounts:reset-pw-confirm' code=code %}</span>
+
+<h5>If you didn't request for resetting a password, please ignore this email.</h5>
+{% endautoescape %}
