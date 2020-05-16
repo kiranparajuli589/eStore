@@ -8,5 +8,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("o/", include("oauth2_provider.urls", namespace="oauth2_provider")),
-    path("api/v1/accounts/", include("accounts.urls")),
+    path("api/v1/accounts/", include("accounts.urls", namespace="user-accounts")),
 ]
