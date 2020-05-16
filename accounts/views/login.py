@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -23,7 +22,10 @@ class LoginView(APIView):
         if serializer.is_valid():
             email = serializer.data['email']
             password = serializer.data['password']
-            get_object_or_404(User, email=email)
+            try:
+                User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({"detail": "User not found!"}, status=status.HTTP_404_NOT_FOUND)
             user = authenticate(username=email, password=password)
             if user:
                 serializer = UserSerializer(user)

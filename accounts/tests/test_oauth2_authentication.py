@@ -57,7 +57,7 @@ class TestOAuth2Authentication(TestCase):
         self.__test_regular_user = User.objects.create_user(
             email=self.__regular_user_email, password=self.__password,
             f_name="Test", l_name="Regular")
-        self.oauth = OauthHelper()
+        self.oauth = OauthHelper(self.__test_regular_user, scope=["read", "write"])
         self.application = OauthHelper.get_application(self.oauth)
         self.access_token = OauthHelper.get_access_token(self.oauth)
 

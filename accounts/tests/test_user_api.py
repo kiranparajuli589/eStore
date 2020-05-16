@@ -1,4 +1,6 @@
 import json
+
+from django.contrib.auth import authenticate
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,18 +15,30 @@ class UserTests(APITestCase):
         return "Bearer {0}".format(token)
 
     def setUp(self):
-        self.__oauth = OauthHelper()
-        self.__access_token = OauthHelper.get_access_token(self.__oauth)
-        self.__admin_credentials = OauthHelper.get_admin_credentials(self.__oauth)
-        self.__auth = self.__create_authorization_header(self.__access_token.token)
+        self.__test_super_user = User.objects.create_superuser(
+            f_name="Test",
+            l_name="Super",
+            email="super@user.co",
+            password="VeryComplex#$123"
+        )
         self.__test_user = User.objects.create_user(
             f_name="Test",
             l_name="User",
             email="test@user.co",
             password="VeryComplex#$123"
         )
+        self.__oauth = OauthHelper(self.__test_super_user, ["read", "write"])
+        self.__access_token = OauthHelper.get_access_token(self.__oauth)
+        self.__auth = self.__create_authorization_header(self.__access_token.token)
+        self.__admin_credentials = dict({
+                "email": self.__test_super_user.email,
+                "password": self.__test_super_user.password,
+                "f_name": self.__test_super_user.f_name,
+                "l_name": self.__test_super_user.l_name
+            })
         self.__users_list_url = reverse("users-list")
         self.__user_detail_url = reverse("user-detail", kwargs={'pk': self.__test_user.pk})
+        self.__user_update_pw_url = reverse("update-pw")
 
     def test_list_users(self):
         """
@@ -129,8 +143,26 @@ class UserTests(APITestCase):
         Ensure we can delete user with DELETE method
         """
         self.assertEqual(User.objects.all().count(), 2)
-        email = self.__test_user.email
         response = self.client.delete(self.__user_detail_url, HTTP_AUTHORIZATION=self.__auth)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(response.data["detail"], "User with email address {} deleted!".format(email))
+        self.assertEqual(response.data["detail"], "Delete success!")
         self.assertEqual(User.objects.all().count(), 1)
+
+    def test_update_user(self):
+        """
+        Ensure we can update user password
+        NOTE: Also, the API requests for updating password of requesting user
+        So, password of superuser is used instead of test user. Its because, oauth token if
+        made using admin user credentials.
+        """
+        data = {
+            "password": "VeryComplex#$123",
+            "new_password": "VerySimple#$321",
+            "confirm": "VerySimple#$321"
+        }
+        response = self.client.post(self.__user_update_pw_url, data=data, HTTP_AUTHORIZATION=self.__auth)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data["detail"], "Update password success.")
+        user = authenticate(email=self.__test_super_user, password=data["confirm"])
+        self.assertIsNotNone(user)
+        self.assertEqual(user.email, self.__admin_credentials["email"])
