@@ -138,9 +138,8 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "hostuser77@gmail.com"
 EMAIL_HOST_PASSWORD = "manage.py77"
 
-OAUTH2_CLIENT_ID = '12ee6bgxtpSEgP8TioWcHSXOiDBOUrVav4mRbVEs'
-OAUTH2_CLIENT_SECRET = '5FvYALo7W4uNnWE2ySw7Yzpkxh9PSf5GuY37RvOys00ydEyph64dbl1ECOKI9ceQ' \
-                       'AKoz0JpiVQtq0DUnsxNhU3ubrJgZ9YbtiXymbLGJq8L7n4fiER7gXbXaNSbze3BN'
+OAUTH2_CLIENT_ID = os.getenv("CLIENT_ID")
+OAUTH2_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 OAUTH2_APP_NAME = 'OAuth2 Provider'
 
 OAUTH2_REDIRECT_URL = static_lazy('backend/swagger-ui-dist/oauth2-redirect.html')
@@ -150,7 +149,7 @@ OAUTH2_TOKEN_URL = reverse_lazy('oauth2_provider:token')
 # drf-yasg
 SWAGGER_SETTINGS = {
     'LOGIN_URL': reverse_lazy('admin:login'),
-    'LOGOUT_URL': '/admin/logout',
+    'LOGOUT_URL': reverse_lazy('admin:logout'),
     'PERSIST_AUTH': False,
     'REFETCH_SCHEMA_WITH_AUTH': True,
     'REFETCH_SCHEMA_ON_LOGOUT': True,
