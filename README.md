@@ -1,4 +1,6 @@
-# eStore Rest API powered store management system
+# iStore Rest API powered store management system
 THIS IS A SERVER BACKEND!!
 
-Follow the link for documentation: https://app.swaggerhub.com/apis-docs/Mas38/iStore/1.0.0
+`Documentation` links: 
+- https://app.swaggerhub.com/apis-docs/Mas38/iStore/1.0.0 **OR**
+- start your server and GOTO: http://<project_url>/swagger/
