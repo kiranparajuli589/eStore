@@ -57,7 +57,7 @@ class Actor(models.Model):
     l_name = models.CharField(max_length=50, verbose_name="Last Name")
 
     address = models.CharField(max_length=50, null=True, blank=True)
-    phone = PhoneNumberField(region="NP", blank=True, null=True, unique=True)
+    phone = PhoneNumberField(region="NP", blank=True, null=True, unique=True, verbose_name="Phone Number")
     email = models.EmailField(unique=True, max_length=50, verbose_name="Email Address")
     date_created = models.DateTimeField(default=NOW, verbose_name="Date of Registration")
 

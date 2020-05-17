@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,11 +14,18 @@ class LoginView(APIView):
     permission_classes = ()
 
     @staticmethod
+    @swagger_auto_schema(
+        security=[],
+        request_body=LoginSerializer,
+        responses={
+            status.HTTP_202_ACCEPTED: openapi.Response(description="Login success."),
+            status.HTTP_400_BAD_REQUEST: openapi.Response(description="Bad request"),
+            status.HTTP_404_NOT_FOUND: "User not found"
+        }
+    )
     def post(request):
         """
-        Get user data and authenticate
-        :param request: http request
-        :return: Response
+        Login a user instance
         """
         serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -29,6 +38,7 @@ class LoginView(APIView):
             user = authenticate(username=email, password=password)
             if user:
                 serializer = UserSerializer(user)
+                # TODO: create_or_refresh token
                 return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
             return Response(
                 {"detail": "Password doesn't match!"},
