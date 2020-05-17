@@ -38,7 +38,7 @@ class UserTests(APITestCase):
             })
         self.__users_list_url = reverse("user-accounts:users-list")
         self.__user_detail_url = reverse("user-accounts:user-detail", kwargs={'pk': self.__test_user.pk})
-        self.__user_update_pw_url = reverse("user-accounts:update-pw")
+        self.__user_update_pw_url = reverse("user-accounts:update-password")
 
     def test_list_users(self):
         """
@@ -145,7 +145,7 @@ class UserTests(APITestCase):
         self.assertEqual(User.objects.all().count(), 2)
         response = self.client.delete(self.__user_detail_url, HTTP_AUTHORIZATION=self.__auth)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(response.data["detail"], "Delete success!")
+        self.assertEqual(response.data["detail"], "Delete success.")
         self.assertEqual(User.objects.all().count(), 1)
 
     def test_update_user_password(self):

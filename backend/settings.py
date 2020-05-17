@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from django.urls import reverse_lazy
+
+from backend.utils.reverse_lazy import static_lazy
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "rest_framework",
     "oauth2_provider",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -133,6 +138,54 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "hostuser77@gmail.com"
 EMAIL_HOST_PASSWORD = "manage.py77"
 
+OAUTH2_CLIENT_ID = os.getenv("CLIENT_ID")
+OAUTH2_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+OAUTH2_APP_NAME = 'OAuth2 Provider'
+
+OAUTH2_REDIRECT_URL = static_lazy('backend/swagger-ui-dist/oauth2-redirect.html')
+OAUTH2_AUTHORIZE_URL = reverse_lazy('oauth2_provider:authorize')
+OAUTH2_TOKEN_URL = reverse_lazy('oauth2_provider:token')
+
+# drf-yasg
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': reverse_lazy('admin:login'),
+    'LOGOUT_URL': reverse_lazy('admin:logout'),
+    'PERSIST_AUTH': False,
+    'REFETCH_SCHEMA_WITH_AUTH': True,
+    'REFETCH_SCHEMA_ON_LOGOUT': True,
+
+    'DEFAULT_INFO': 'backend.urls.swagger_info',
+
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'in': 'header',
+            'name': 'Authorization',
+            'type': 'apiKey',
+        },
+        'OAuth2 Password': {
+            'flow': 'password',
+            'scopes': {
+                'read': 'Read everything.',
+                'write': 'Write everything,',
+            },
+            'tokenUrl': OAUTH2_TOKEN_URL,
+            'type': 'oauth2',
+        }
+    },
+    'OAUTH2_REDIRECT_URL': OAUTH2_REDIRECT_URL,
+    'OAUTH2_CONFIG': {
+        'clientId': OAUTH2_CLIENT_ID,
+        'clientSecret': OAUTH2_CLIENT_SECRET,
+        'appName': OAUTH2_APP_NAME,
+    }
+}
+
+REDOC_SETTINGS = {
+    'SPEC_URL': ('schema-json', {'format': '.json'}),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

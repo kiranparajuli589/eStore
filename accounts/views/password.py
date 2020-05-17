@@ -3,6 +3,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,6 +20,15 @@ AccessToken = get_access_token_model()
 
 class UpdatePassword(APIView):
     @staticmethod
+    @swagger_auto_schema(
+        security=[{"OAuth2 Password": []}],
+        request_body=UpdatePasswordSerializer,
+        responses={
+            status.HTTP_204_NO_CONTENT: openapi.Response(description="Update password success."),
+            status.HTTP_400_BAD_REQUEST: openapi.Response(description="Validation error (strength, confirm password)"),
+            status.HTTP_403_FORBIDDEN: "Forbidden"
+        }
+    )
     def post(request):
         """
         Update password for authenticated user
@@ -30,30 +41,11 @@ class UpdatePassword(APIView):
             if user:
                 user.set_password(new_password)
                 user.save()
+                # TODO: refresh token
                 update_session_auth_hash(request, request.user)
                 return Response({"detail": "Update password success."}, status=status.HTTP_204_NO_CONTENT)
             else:
-                return Response({"error": "Wrong existing password."}, status=status.HTTP_400_BAD_REQUEST)
-            # """
-            # User must have access_token to access this api
-            # After password is changed, lets change access_token too.
-            # """
-            # application = Application.objects.get(user=user, name=user.f_name)
-            # access_token = AccessToken.objects.get(user=user)
-            # refresh_token = access_token.refresh_token
-            # request_token_url = "http://{}{}".format(iSTORE_SERVER_URL, reverse('oauth2_provider:token'))
-            # data = {
-            #     "grant_type": "refresh_token",
-            #     "refresh_token": refresh_token,
-            # }
-            # token_response = requests.post(
-            #     url=request_token_url,
-            #     data=data,
-            #     auth=(application.client_id, application.client_secret)
-            # )
-            # token_response_content = json.loads(token_response.content.decode("utf-8"))
-            # return Response({"detail": "Update password success."},
-            #                 status=status.HTTP_204_NO_CONTENT)
+                return Response({"error": "Wrong existing password."}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response(
                 serializer.errors,
@@ -61,11 +53,24 @@ class UpdatePassword(APIView):
             )
 
 
-class ResetPasswordRequest(APIView):
+class ResetPasswordRequestCode(APIView):
     permission_classes = ()
     authentication_classes = ()
 
     @staticmethod
+    @swagger_auto_schema(
+        security=[],
+        request_body=ResetPasswordEmailSerializer,
+        responses={
+            status.HTTP_204_NO_CONTENT: openapi.Response(
+                description="Send reset-password link sent to provided mail address."
+            ),
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description="Validation error (Existing password, strength)"
+            ),
+            status.HTTP_403_FORBIDDEN: "Forbidden (Wrong existing password)"
+        }
+    )
     def post(request):
         """
         Reset user password -> Sends PIN to provided email address
@@ -92,7 +97,8 @@ class ResetPasswordRequest(APIView):
                     recipient_list=[email],
                     html_message=message
                 )
-                return Response({"detail": "PIN has been sent to provided mail address."}, status=status.HTTP_202_ACCEPTED)
+                return Response({"detail": "Reset-password link sent to provided mail address."},
+                                status=status.HTTP_202_ACCEPTED)
             except User.DoesNotExist:
                 return Response({"error": "User not found."}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -106,6 +112,29 @@ class ResetPasswordConfirm(APIView):
     authentication_classes = ()
 
     @staticmethod
+    @swagger_auto_schema(
+        security=[],
+        manual_parameters=[
+            openapi.Parameter(
+                name='code', in_=openapi.IN_PATH,
+                type=openapi.TYPE_STRING,
+                description="base64 uuid code",
+                required=True
+            ),
+        ],
+        request_body=ResetNewPasswordSerializer,
+        responses={
+            status.HTTP_100_CONTINUE: openapi.Response(
+                description="Reset password success."
+            ),
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description="Validation error (password strength, length)"
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Code not found"
+            )
+        }
+    )
     def post(request, code):
         serializer = ResetNewPasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -118,6 +147,6 @@ class ResetPasswordConfirm(APIView):
                 reset_password_code.delete()
                 return Response({"detail": "Reset password success."}, status=status.HTTP_100_CONTINUE)
             except ResetPasswordCode.DoesNotExist:
-                return Response({"error": "Code not found."})
+                return Response({"error": "Code not found."}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
