@@ -1,5 +1,5 @@
 ## Description
-<Your feature discription here...>
+<Your feature description here...>
 
 ## Motivation/Context
 
@@ -8,11 +8,10 @@
 ## How this has been tested
 - [ ] locally
 - [ ] :robot:
-- [ ] ..
 
 ## Type of change
 - [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feaure (non-breaking change which add functionality)
+- [ ] New feature (non-breaking change which add functionality)
 - [ ] Database schema changes
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] This change requires a documentation update
