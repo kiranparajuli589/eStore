@@ -32,7 +32,7 @@ help:
 	@echo -e "serve-dev\t\t start the development server at 0.0.0.0:8000"
 	@echo -e "serve-prod\t\t start the production server at 0.0.0.0:8000"
 	@echo -e "serve-prod\t\t start the test server at 0.0.0.0:8000"
-	@echo -e "clean\t\t\t delete generated migrations, virtualenv and extra redundant files"
+	@echo -e "clean\t\t\t delete database generated migrations, virtualenv and extra redundant files"
 	@echo -e "clean-migrations\t delete generated migrations"
 	@echo -e "clean-env\t\t delete generated virtual environment"
 	@echo -e "clean-extra\t\t delete generated extra redundant files"
@@ -75,7 +75,7 @@ serve-test:
 	$(PYTHON) manage.py runserver $(eSTORE_SERVER_HOST) --settings=backend.settings.test
 
 .PHONY: clean
-clean: clean-migrations clean-env clean-extra
+clean: clean-migrations clean-env clean-extra clean-db
 
 .PHONY: clean-migrations
 clean-migrations:
