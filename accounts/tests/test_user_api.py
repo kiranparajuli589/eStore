@@ -1,6 +1,9 @@
 import json
+import re
 
+import requests
 from django.contrib.auth import authenticate
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -31,14 +34,15 @@ class UserTests(APITestCase):
         self.__access_token = OauthHelper.get_access_token(self.__oauth)
         self.__auth = self.__create_authorization_header(self.__access_token.token)
         self.__admin_credentials = dict({
-                "email": self.__test_super_user.email,
-                "password": self.__test_super_user.password,
-                "f_name": self.__test_super_user.f_name,
-                "l_name": self.__test_super_user.l_name
-            })
+            "email": self.__test_super_user.email,
+            "password": self.__test_super_user.password,
+            "f_name": self.__test_super_user.f_name,
+            "l_name": self.__test_super_user.l_name
+        })
         self.__users_list_url = reverse("user-accounts:users-list")
         self.__user_detail_url = reverse("user-accounts:user-detail", kwargs={'pk': self.__test_user.pk})
-        self.__user_update_pw_url = reverse("user-accounts:update-password")
+        self.__update_password_rul = reverse("user-accounts:update-password")
+        self.__reset_password_request_url = reverse("user-accounts:reset-password-request")
 
     def test_list_users(self):
         """
@@ -152,7 +156,7 @@ class UserTests(APITestCase):
         """
         Ensure we can update user password
         NOTE: Also, the API requests for updating password of requesting user
-        So, password of superuser is used instead of test user. Its because, oauth token if
+        So, in this case password of superuser is updated instead of test user. Its because, oauth token if
         made using admin user credentials.
         """
         data = {
@@ -160,9 +164,47 @@ class UserTests(APITestCase):
             "new_password": "VerySimple#$321",
             "confirm_password": "VerySimple#$321"
         }
-        response = self.client.post(self.__user_update_pw_url, data=data, HTTP_AUTHORIZATION=self.__auth)
+        response = self.client.post(self.__update_password_rul, data=data, HTTP_AUTHORIZATION=self.__auth)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(response.data["detail"], "Update password success.")
+        user = authenticate(email=self.__test_super_user, password=data["confirm_password"])
+        self.assertIsNotNone(user)
+        self.assertEqual(user.email, self.__admin_credentials["email"])
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
+    @override_settings(EMAIL_HOST="127.0.0.1")
+    @override_settings(EMAIL_PORT=1025)
+    @override_settings(EMAIL_HOST_USER='foo@bar.com')
+    def test_reset_user_password(self):
+        """
+        Ensure we can reset user password
+        NOTE: Also, the API requests for resetting password of requesting user
+        So, in this case password of superuser is reset instead of test user. Its because, oauth token if
+        made using admin user credentials.
+        """
+        data = {
+            "email": self.__admin_credentials["email"]
+        }
+        response = self.client.post(self.__reset_password_request_url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(response.data["detail"], "Reset-password link sent to provided mail address.")
+
+        mail_hog_response = requests.get("http://127.0.0.1:8025/api/v2/messages?limit=1")
+        response_content_dict = json.loads(mail_hog_response.content)
+        mail_body = response_content_dict["items"][0]["Content"]["Body"]
+
+        # reset_password_confirm_url = re.search("(?P<url>https?://[^\s]+)", str(mail_body)).group("url")
+        # print(reset_password_confirm_url)
+        code = re.findall('"([^"]*)"', str(mail_body))[2]
+        reset_password_confirm_url = reverse("user-accounts:reset-password-confirm",
+                                             kwargs={'code': code})
+        data = {
+            "new_password": "NewComplexPw589",
+            "confirm_password": "NewComplexPw589"
+        }
+        again_response = self.client.post(reset_password_confirm_url, data)
+        self.assertEqual(again_response.status_code, status.HTTP_100_CONTINUE)
+        self.assertEqual(again_response.data["detail"], "Reset password success.")
         user = authenticate(email=self.__test_super_user, password=data["confirm_password"])
         self.assertIsNotNone(user)
         self.assertEqual(user.email, self.__admin_credentials["email"])

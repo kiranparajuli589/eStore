@@ -8,6 +8,8 @@
 curl -X POST {% if request.is_secure %}https{% else %}http{% endif %}://localhost:8000{% url 'user-accounts:reset-password-confirm' code=code %} -d new_password=123456 -d confirm_password=123456
 </span>
 
+<p>This is code for password reset: "{{ code }}"</p>
+
 <p>This is the endpoint:</p>
 <span>{% if request.is_secure %}https{% else %}http{% endif %}://localhost:8000{% url 'user-accounts:reset-password-confirm' code=code %}</span>
 
