@@ -1,5 +1,6 @@
 from django.contrib.auth import update_session_auth_hash, authenticate
 from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -12,7 +13,6 @@ from oauth2_provider.models import get_application_model, get_access_token_model
 
 from accounts.models import User, ResetPasswordCode
 from accounts.serializers import UpdatePasswordSerializer, ResetPasswordEmailSerializer, ResetNewPasswordSerializer
-from backend import settings
 
 Application = get_application_model()
 AccessToken = get_access_token_model()
