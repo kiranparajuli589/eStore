@@ -49,7 +49,6 @@ class UserList(APIView):
             user = serializer.save()
             user.set_password(serializer.validated_data["password"])
             user.is_active = True
-            user.save()
             UserProfile(user=user).save()
             Application.objects.create(
                 name="{} Application".format(user.f_name),
@@ -58,6 +57,7 @@ class UserList(APIView):
                 client_type=Application.CLIENT_CONFIDENTIAL,
                 authorization_grant_type=Application.GRANT_PASSWORD,
             )
+            user.save()
             return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

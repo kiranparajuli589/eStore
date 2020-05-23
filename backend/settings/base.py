@@ -25,23 +25,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "3$ufr1j*3q94xdtk*6qgduqzq&*@a6awh4wib07vk=095^%pe8"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
-
 AUTH_USER_MODEL = "accounts.User"
 
 # Application definition
 
 INSTALLED_APPS = [
+    #project apps
     "accounts",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # dependent apps
     "phonenumber_field",
     "rest_framework",
     "oauth2_provider",
@@ -130,56 +129,48 @@ OAUTH2_PROVIDER = {
     "SCOPES": {"read": "Read scope", "write": "Write scope"}
 }
 
-# EMAIL CONFIGURATION
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "hostuser77@gmail.com"
-EMAIL_HOST_PASSWORD = "manage.py77"
-
 OAUTH2_CLIENT_ID = os.getenv("CLIENT_ID")
 OAUTH2_CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-OAUTH2_APP_NAME = 'OAuth2 Provider'
+OAUTH2_APP_NAME = "OAuth2 Provider"
 
-OAUTH2_REDIRECT_URL = static_lazy('backend/swagger-ui-dist/oauth2-redirect.html')
-OAUTH2_AUTHORIZE_URL = reverse_lazy('oauth2_provider:authorize')
-OAUTH2_TOKEN_URL = reverse_lazy('oauth2_provider:token')
+OAUTH2_REDIRECT_URL = static_lazy("backend/swagger-ui-dist/oauth2-redirect.html")
+OAUTH2_AUTHORIZE_URL = reverse_lazy("oauth2_provider:authorize")
+OAUTH2_TOKEN_URL = reverse_lazy("oauth2_provider:token")
 
 # drf-yasg
 SWAGGER_SETTINGS = {
-    'LOGIN_URL': reverse_lazy('admin:login'),
-    'LOGOUT_URL': reverse_lazy('admin:logout'),
-    'PERSIST_AUTH': False,
-    'REFETCH_SCHEMA_WITH_AUTH': True,
-    'REFETCH_SCHEMA_ON_LOGOUT': True,
+    "LOGIN_URL": reverse_lazy("admin:login"),
+    "LOGOUT_URL": reverse_lazy("admin:logout"),
+    "PERSIST_AUTH": False,
+    "REFETCH_SCHEMA_WITH_AUTH": True,
+    "REFETCH_SCHEMA_ON_LOGOUT": True,
 
-    'DEFAULT_INFO': 'backend.urls.swagger_info',
+    "DEFAULT_INFO": "backend.urls.swagger_info",
 
-    'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
+    "SECURITY_DEFINITIONS": {
+        "Basic": {
+            "type": "basic"
         },
-        'Bearer': {
-            'in': 'header',
-            'name': 'Authorization',
-            'type': 'apiKey',
+        "Bearer": {
+            "in": "header",
+            "name": "Authorization",
+            "type": "apiKey",
         },
-        'OAuth2 Password': {
-            'flow': 'password',
-            'scopes': {
-                'read': 'Read everything.',
-                'write': 'Write everything,',
+        "OAuth2 Password": {
+            "flow": "password",
+            "scopes": {
+                "read": "Read everything.",
+                "write": "Write everything,",
             },
-            'tokenUrl': OAUTH2_TOKEN_URL,
-            'type': 'oauth2',
+            "tokenUrl": OAUTH2_TOKEN_URL,
+            "type": "oauth2",
         }
     },
-    'OAUTH2_REDIRECT_URL': OAUTH2_REDIRECT_URL,
-    'OAUTH2_CONFIG': {
-        'clientId': OAUTH2_CLIENT_ID,
-        'clientSecret': OAUTH2_CLIENT_SECRET,
-        'appName': OAUTH2_APP_NAME,
+    "OAUTH2_REDIRECT_URL": OAUTH2_REDIRECT_URL,
+    "OAUTH2_CONFIG": {
+        "clientId": OAUTH2_CLIENT_ID,
+        "clientSecret": OAUTH2_CLIENT_SECRET,
+        "appName": OAUTH2_APP_NAME,
     }
 }
 
@@ -199,11 +190,3 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
-STATIC_URL = "/static/"
-
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"

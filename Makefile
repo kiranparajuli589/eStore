@@ -29,7 +29,9 @@ help:
 	@echo -e "perform-migration\tcreate and apply migrations"
 	@echo -e "make-migrations\t\tcreate migrations (Available var: APP | Default: 'accounts')"
 	@echo -e "migrate\t\t\tapply migrations"
-	@echo -e "serve\t\t\tstart the dev server at 0.0.0.0:8000"
+	@echo -e "serve-dev\t\tstart the development server at 0.0.0.0:8000"
+	@echo -e "serve-prod\t\tstart the production server at 0.0.0.0:8000"
+	@echo -e "serve-prod\t\tstart the test server at 0.0.0.0:8000"
 	@echo -e "clean\t\t\tdelete generated migrations, virtualenv and extra redundant files"
 	@echo -e "clean-migrations\tdelete generated migrations"
 	@echo -e "clean-env\t\tdelete generated virtualenv"
@@ -58,9 +60,17 @@ mk-migrations: $(make_migration_deps)
 migrate: $(migration_deps)
 	$(PYTHON) manage.py migrate $(APP)
 
-.PHONY: serve
-serve:
-	$(PYTHON) manage.py runserver $(eSTORE_SERVER_HOST)
+.PHONY: serve-dev
+serve-dev:
+	$(PYTHON) manage.py runserver $(eSTORE_SERVER_HOST) --settings=backend.settings.dev
+
+.PHONY: serve-prod
+serve-prod:
+	$(PYTHON) manage.py runserver $(eSTORE_SERVER_HOST) --settings=backend.settings.prod
+
+.PHONY: serve-test
+serve-test:
+	$(PYTHON) manage.py runserver $(eSTORE_SERVER_HOST) --settings=backend.settings.test
 
 .PHONY: clean
 clean: clean-migrations clean-env clean-extra

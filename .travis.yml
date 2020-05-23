@@ -14,7 +14,7 @@ install:
   - make mk-migrations
   - make migrate
   - make create-superuser
-  - make serve &
+  - make serve-test &
   - until curl -s $ESALE_SERVER_BACKEND; do sleep 5; done
 
 script:
