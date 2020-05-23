@@ -2,11 +2,18 @@ dist: bionic
 os: linux
 language: python
 
+services:
+  - docker
+
 python:
   - 3.8
 
 env:
   - ESALE_SERVER_BACKEND: 172.17.0.1:8000
+
+before_install:
+  - docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
+  - docker ps -a
 
 install:
   - make install
